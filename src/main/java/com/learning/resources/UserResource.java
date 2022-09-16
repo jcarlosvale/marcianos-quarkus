@@ -6,10 +6,13 @@ import com.learning.repository.UserRepository;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 
 import javax.transaction.Transactional;
+import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Optional;
+import java.util.Set;
 
 @Path("/users")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -29,7 +32,9 @@ public class UserResource {
     @Transactional
     public Response createUser(UserRequest userRequest) {
 
-        if (isValid(userRequest)) {
+        Optional<Response> valid = isValid(userRequest);
+
+        if (valid.isEmpty()) {
 
             User user = new User();
             user.setCpf(userRequest.getCpf());
@@ -41,12 +46,19 @@ public class UserResource {
 
             return Response.ok(userRequest).build();
         } else {
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return valid.get();
         }
     }
 
-    private boolean isValid(UserRequest userRequest) {
-        return validator.validate(userRequest).isEmpty();
+    private Optional<Response> isValid(UserRequest userRequest) {
+        Set<ConstraintViolation<UserRequest>> violations = validator.validate(userRequest);
+        if (!violations.isEmpty()) {
+            ConstraintViolation<UserRequest> violation = violations.stream().findAny().get();
+            String errorMessage = violation.getMessage();
+            Response response = Response.status(Response.Status.BAD_REQUEST).entity(errorMessage).build();
+            return Optional.of(response);
+        }
+        return Optional.empty();
     }
 
     @GET
