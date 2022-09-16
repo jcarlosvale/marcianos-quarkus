@@ -2,6 +2,7 @@ package com.learning.resources;
 
 import com.learning.dto.UserRequest;
 import com.learning.model.User;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 
 import javax.transaction.Transactional;
 import javax.ws.rs.*;
@@ -28,7 +29,8 @@ public class UserResource {
 
     @GET
     public Response listAllUsers() {
-        return Response.ok().build();
+        PanacheQuery<User> users = User.findAll();
+        return Response.ok(users.list()).build();
     }
 
 }
