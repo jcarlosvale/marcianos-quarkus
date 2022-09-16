@@ -33,4 +33,35 @@ public class UserResource {
         return Response.ok(users.list()).build();
     }
 
+    @DELETE
+    @Transactional
+    @Path("{id}")
+    public Response deleteUser(@PathParam("id") Long id) {
+        User user = User.findById(id);
+
+        if (user != null) {
+            user.delete();
+            return Response.accepted().build();
+        }
+
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    @PUT
+    @Path("{id}")
+    @Transactional
+    public Response updateUser(@PathParam("id") Long id, UserRequest request) {
+
+        User user = User.findById(id);
+
+        if (user != null) {
+            user.setCpf(request.getCpf());
+            user.setEmail(request.getEmail());
+            user.setName(request.getNome());
+            user.persist();
+        }
+
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
 }
