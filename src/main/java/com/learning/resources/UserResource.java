@@ -58,7 +58,7 @@ public class UserResource {
             user.setCpf(request.getCpf());
             user.setEmail(request.getEmail());
             user.setName(request.getNome());
-            user.persist();
+            return Response.accepted().build();
         }
 
         return Response.status(Response.Status.NOT_FOUND).build();
