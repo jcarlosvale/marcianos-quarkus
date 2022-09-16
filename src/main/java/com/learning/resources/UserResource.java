@@ -6,6 +6,7 @@ import com.learning.repository.UserRepository;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 
 import javax.transaction.Transactional;
+import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -17,23 +18,35 @@ public class UserResource {
 
     private final UserRepository repository;
 
-    public UserResource(UserRepository userRepository) {
+    private final Validator validator;
+
+    public UserResource(UserRepository userRepository, Validator validator) {
         this.repository = userRepository;
+        this.validator = validator;
     }
 
     @POST
     @Transactional
     public Response createUser(UserRequest userRequest) {
 
-        User user = new User();
-        user.setCpf(userRequest.getCpf());
-        user.setEmail(userRequest.getEmail());
-        user.setName(userRequest.getNome());
+        if (isValid(userRequest)) {
 
-        //user.persist();
-        repository.persist(user);
+            User user = new User();
+            user.setCpf(userRequest.getCpf());
+            user.setEmail(userRequest.getEmail());
+            user.setName(userRequest.getNome());
 
-        return Response.ok(userRequest).build();
+            //user.persist();
+            repository.persist(user);
+
+            return Response.ok(userRequest).build();
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+
+    private boolean isValid(UserRequest userRequest) {
+        return validator.validate(userRequest).isEmpty();
     }
 
     @GET

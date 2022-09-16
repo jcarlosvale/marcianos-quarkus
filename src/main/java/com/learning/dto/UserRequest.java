@@ -1,11 +1,18 @@
 package com.learning.dto;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.Objects;
 
 public class UserRequest {
 
+    @NotBlank(message = "Nome requerido.")
     private String nome;
+    @NotBlank(message = "CPF requerido.")
+    @Size(min = 11, message = "Tamanho minimo de 11 caracteres em um cpf")
     private String cpf;
+    @Email(message = "Email invalido")
     private String email;
 
     public UserRequest(String nome, String cpf, String email) {
