@@ -2,6 +2,7 @@ package com.learning.resources;
 
 import com.learning.dto.UserRequest;
 import com.learning.model.User;
+import com.learning.repository.UserRepository;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 
 import javax.transaction.Transactional;
@@ -14,6 +15,12 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 public class UserResource {
 
+    private final UserRepository repository;
+
+    public UserResource(UserRepository userRepository) {
+        this.repository = userRepository;
+    }
+
     @POST
     @Transactional
     public Response createUser(UserRequest userRequest) {
@@ -22,14 +29,17 @@ public class UserResource {
         user.setCpf(userRequest.getCpf());
         user.setEmail(userRequest.getEmail());
         user.setName(userRequest.getNome());
-        user.persist();
+
+        //user.persist();
+        repository.persist(user);
 
         return Response.ok(userRequest).build();
     }
 
     @GET
     public Response listAllUsers() {
-        PanacheQuery<User> users = User.findAll();
+        //PanacheQuery<User> users = User.findAll();
+        PanacheQuery<User> users = repository.findAll();
         return Response.ok(users.list()).build();
     }
 
@@ -37,10 +47,13 @@ public class UserResource {
     @Transactional
     @Path("{id}")
     public Response deleteUser(@PathParam("id") Long id) {
-        User user = User.findById(id);
+        //User user = User.findById(id);
+        User user = repository.findById(id);
 
         if (user != null) {
-            user.delete();
+            //user.delete();
+            repository.delete(user);
+
             return Response.accepted().build();
         }
 
@@ -52,7 +65,9 @@ public class UserResource {
     @Transactional
     public Response updateUser(@PathParam("id") Long id, UserRequest request) {
 
-        User user = User.findById(id);
+        //User user = User.findById(id);
+        User user = repository.findById(id);
+
 
         if (user != null) {
             user.setCpf(request.getCpf());
