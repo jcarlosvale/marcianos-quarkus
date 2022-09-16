@@ -1,5 +1,6 @@
 package com.learning.resources;
 
+import com.learning.dto.ResponseError;
 import com.learning.dto.UserRequest;
 import com.learning.model.User;
 import com.learning.repository.UserRepository;
@@ -32,7 +33,7 @@ public class UserResource {
     @Transactional
     public Response createUser(UserRequest userRequest) {
 
-        Optional<Response> valid = isValid(userRequest);
+        Optional<ResponseError> valid = isValid(userRequest);
 
         if (valid.isEmpty()) {
 
@@ -46,17 +47,19 @@ public class UserResource {
 
             return Response.ok(userRequest).build();
         } else {
-            return valid.get();
+            return valid.get().withStatusCode(ResponseError.UNPROCESSABLE_ENTITY_STATUS);
         }
     }
 
-    private Optional<Response> isValid(UserRequest userRequest) {
+    private Optional<ResponseError> isValid(UserRequest userRequest) {
         Set<ConstraintViolation<UserRequest>> violations = validator.validate(userRequest);
         if (!violations.isEmpty()) {
-            ConstraintViolation<UserRequest> violation = violations.stream().findAny().get();
-            String errorMessage = violation.getMessage();
-            Response response = Response.status(Response.Status.BAD_REQUEST).entity(errorMessage).build();
-            return Optional.of(response);
+//            ConstraintViolation<UserRequest> violation = violations.stream().findAny().get();
+//            String errorMessage = violation.getMessage();
+//            Response response = Response.status(Response.Status.BAD_REQUEST).entity(errorMessage).build();
+//            return Optional.of(response);
+            ResponseError responseError = ResponseError.createFromValidation(violations);
+            return Optional.of(responseError);
         }
         return Optional.empty();
     }
