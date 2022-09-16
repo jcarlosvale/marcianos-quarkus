@@ -1,11 +1,13 @@
 package com.learning.model;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+
 import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name = "usuarios")
+public class User extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

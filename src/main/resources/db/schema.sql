@@ -1,4 +1,4 @@
-CREATE TABLE USERS (
+CREATE TABLE USUARIOS (
                        id bigserial not null primary key,
                        name varchar(100) not null,
                        cpf varchar(20) not null,
